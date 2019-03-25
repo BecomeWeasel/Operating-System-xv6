@@ -6,68 +6,70 @@
 #include <unistd.h>
 
 #define BUF_SIZE 2097152
-#define NUM_CMD 50
-#define LEN_CMD 100
+#define LIMIT_NUM_CMD 50
+#define LIMIT_NUM_CMD_OPTION 10
 #define CMD_TOKEN ";"
 #define CMD_OPTION_TOKEN " "
 
+int count = 0;
 
 int main(int argc, char *argv[]) {
 	if (argc == 1) {
 		while (1) {
 			printf("> ");
-			char statement[BUF_SIZE];
+			char raw_input[BUF_SIZE];
 
 
-      // ctrl-D check
-			if(fgets(statement, BUF_SIZE, stdin)==NULL)
-        return 0;
-      // if command is quit, end shell
-      if(strcmp(statement,"quit")){
-        // end shell
-        return 0;
-      }
+			// ctrl-D check
+			if (fgets(raw_input, BUF_SIZE, stdin) == NULL)
+				_exit(0);
 
-			char *temp;
-			temp = strtok(statement, CMD_TOKEN);
+			char *temp_for_tokenized_cmd;
+			temp_for_tokenized_cmd = strtok(raw_input, CMD_TOKEN);
 
 			//ok
 
-			char *cmd_sets[50] = {};
+			char *cmd_sets[LIMIT_NUM_CMD] = {};
 
 			int i = 0;
 
-			while (temp != NULL) {
-				cmd_sets[i] = temp;
-				temp = strtok(NULL, CMD_TOKEN);
+			while (temp_for_tokenized_cmd != NULL) {
+				cmd_sets[i] = temp_for_tokenized_cmd;
+				temp_for_tokenized_cmd = strtok(NULL, CMD_TOKEN);
 				i++;
 			}
 
 
-			char *temp3;
-			for (int k = 0; k < 50 && cmd_sets[k] != NULL; k++) {
+			char *temp_for_separted_cmd;
+			for (int k = 0; k < LIMIT_NUM_CMD && cmd_sets[k] != NULL; k++) {
 				int ii = 0;
 
 				// replace new line into null
-				char *p = strchr(cmd_sets[k], '\n');
-				if (p != NULL) *p = '\0';
+				char *newline_pointer = strchr(cmd_sets[k], '\n');
+				if (newline_pointer != NULL) *newline_pointer = '\0';
 
 
-				char *cmd_options[6] = {};
+				char *cmd_with_options[LIMIT_NUM_CMD_OPTION] = {};
 
-				temp3 = strtok(cmd_sets[k], CMD_OPTION_TOKEN);
-				while (temp3 != NULL) {
-					cmd_options[ii++] = temp3;
-					temp3 = strtok(NULL, CMD_OPTION_TOKEN);
-//					*p = "";
+				temp_for_separted_cmd = strtok(cmd_sets[k], CMD_OPTION_TOKEN);
+				while (temp_for_separted_cmd != NULL) {
+					cmd_with_options[ii++] = temp_for_separted_cmd;
+					temp_for_separted_cmd = strtok(NULL, CMD_OPTION_TOKEN);
 				}
 				//execvp section
 				pid_t child_pid;
 				int child_status;
 
+				if (cmd_with_options[0] != NULL && !strcmp(cmd_with_options[0], "quit")) {
+					_exit(0);
+				}
+
 				child_pid = fork();
 				if (child_pid == 0) {
-					execvp(cmd_options[0], cmd_options);
+					// child process section
+					// if command is quit, end this child process.
+
+					execvp(cmd_with_options[0], cmd_with_options);
 
 					perror("Unknown Command\n");
 				} else {
@@ -76,7 +78,7 @@ int main(int argc, char *argv[]) {
 					printf("Finished\n");
 				}
 			}
-
+			count++;
 		}
 	} else {
 		// batch mode
