@@ -11,11 +11,11 @@
 #define CMD_TOKEN ";"
 #define CMD_OPTION_TOKEN " "
 
-int count = 0;
 
 int main(int argc, char *argv[]) {
 	if (argc == 1) {
 		while (1) {
+      char *all_cmd_sets[LIMIT_NUM_CMD][LIMIT_NUM_CMD_OPTION]={};
 			printf("> ");
 			char raw_input[BUF_SIZE];
 
@@ -64,7 +64,16 @@ int main(int argc, char *argv[]) {
 					_exit(0);
 				}
 
-				child_pid = fork();
+        for(int i=0;i<LIMIT_NUM_CMD;i++){
+          for(int j=0;j<LIMIT_NUM_CMD_OPTION&&
+              cmd_with_options[j]!=NULL;j++)
+          {
+            all_cmd_sets[i][j]=cmd_with_options[j];
+          }
+        }
+
+
+				/*child_pid = fork();
 				if (child_pid == 0) {
 					// child process section
 					// if command is quit, end this child process.
@@ -76,10 +85,13 @@ int main(int argc, char *argv[]) {
 					while (wait(&child_status) < 0);
 
 					printf("Finished\n");
-				}
+				}*/
 			}
-			count++;
 		}
+
+
+
+
 	} else {
 		// batch mode
 	}
