@@ -17,8 +17,16 @@ int main(int argc, char *argv[]) {
 		while (1) {
 			printf("> ");
 			char statement[BUF_SIZE];
-			fgets(statement, BUF_SIZE, stdin);
 
+
+      // ctrl-D check
+			if(fgets(statement, BUF_SIZE, stdin)==NULL)
+        return 0;
+      // if command is quit, end shell
+      if(strcmp(statement,"quit")){
+        // end shell
+        return 0;
+      }
 
 			char *temp;
 			temp = strtok(statement, CMD_TOKEN);
