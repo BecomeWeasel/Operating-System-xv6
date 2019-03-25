@@ -19,30 +19,38 @@ int main(int argc,char * argv[]){
       printf("> ");
       char statement[100];
       fgets(statement,100,stdin);
+      
 
-      char * temp=strtok(statement,';');
-      printf("%s",temp);
-      char* cmd_sets[50]={};
-      strcpy(cmd_sets[0],temp);
+      const char s[2]=";";
+
+      char *temp;
+      temp=strtok(statement,CMD_TOKEN);
+      printf("%s l28\n",temp);
+
+      //ok
+
+      char cmd_sets[50][50]={};
+      printf("%s\n",cmd_sets[0]);
+
       int i=0;
-      i+=1;
+      printf("here l42\n");
       while(temp!=NULL){
-        temp=strtok(NULL,';');
         strcpy(cmd_sets[i],temp);
+        temp=strtok(NULL,CMD_TOKEN);
         i++;
       }
-      for(int ii=0;ii<50;ii++){
-        printf("%s\n",cmd_sets[ii]);
-      }
+
       int j=0;
       int k=1;
       int num_cmd=0;
       char *cmd_sets_options[50][100]={};
-      while(j<NUM_CMD){
-        char *temp2=strtok(cmd_sets[j],' ');
+
+
+      while(j<NUM_CMD&&cmd_sets_options[j]!=NULL){
+        char *temp2=strtok(cmd_sets[j],CMD_OPTION_TOKEN);
         strcpy(cmd_sets_options[j][0],temp2);
        while(temp2!=NULL){
-         temp2=strtok(NULL,' ');
+         temp2=strtok(NULL,CMD_OPTION_TOKEN);
          strcpy(cmd_sets_options[j][k++],temp2);
          printf("%s\n",cmd_sets_options[j][k]);
        }
