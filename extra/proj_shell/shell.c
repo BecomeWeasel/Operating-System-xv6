@@ -37,6 +37,10 @@ int main(int argc, char *argv[])
 			// if user type no command and press enter
 			if (!strcmp(raw_input, "\n")) continue;
 
+			printf("Your current command is %s", raw_input);
+			printf("Working...\n");
+
+
 			// replace new line into null
 			char *newline_pointer = strchr(raw_input, '\n');
 			if (newline_pointer != NULL) *newline_pointer = '\0';
@@ -128,7 +132,6 @@ int main(int argc, char *argv[])
 			while ((wait_pid = wait(&status_child)) > 0
 			       && ++wait_cnt < k);
 
-			printf("%d %d %d \n\n", k, wait_pid, status_child);
 			switch (status_child)
 			{
 				case ECHILD :
@@ -138,7 +141,7 @@ int main(int argc, char *argv[])
 					printf("Unknown Command\n");
 					break;
 				default :
-					printf("errno:%d\n", errno);
+//					printf("errno:%d\n", errno);
 					break;
 			}
 		}
@@ -190,8 +193,6 @@ int main(int argc, char *argv[])
 					cmd_sets[num_of_cmd_in_oneline++] = temp_for_tokenized_cmd;
 					temp_for_tokenized_cmd = strtok(NULL, CMD_TOKEN);
 				}
-
-				printf("num of cmd in oneline %d\n", num_of_cmd_in_oneline);
 
 				char *temp_for_separated_cmd;
 				char *cmd_with_options[LIMIT_NUM_CMD][LIMIT_NUM_CMD_OPTION] = {};
@@ -257,7 +258,7 @@ int main(int argc, char *argv[])
 							printf("Unknown Command\n");
 							break;
 						default :
-							printf("errno:%d\n", errno);
+//							printf("errno:%d\n", errno);
 							break;
 					}
 			}
