@@ -159,9 +159,10 @@ int main(int argc, char *argv[])
 		// batch mode
 		FILE *batch_file = fopen(argv[1], "r");
 
+
 		if (batch_file == NULL)
 		{
-			_exit(0);
+			exit(0);
 		}
 		else
 		{
@@ -260,6 +261,7 @@ int main(int argc, char *argv[])
 
 				int wait_cnt = 0; // count how many times wait function called
 
+
 				while ((wait_pid = wait(&status_child)) > 0
 				       && ++wait_cnt < num_of_cmd_in_oneline)
 					switch (errno)
@@ -275,6 +277,7 @@ int main(int argc, char *argv[])
 							break;
 					}
 			}
+			fclose(batch_file);
 
 		}
 
