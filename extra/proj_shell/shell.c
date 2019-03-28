@@ -34,6 +34,9 @@ int main(int argc, char *argv[])
 			if (fgets(raw_input, BUF_SIZE, stdin) == NULL)
 				_exit(0);
 
+			// if user type no command and press enter
+			if (!strcmp(raw_input, "\n")) continue;
+
 			// replace new line into null
 			char *newline_pointer = strchr(raw_input, '\n');
 			if (newline_pointer != NULL) *newline_pointer = '\0';
@@ -78,11 +81,15 @@ int main(int argc, char *argv[])
 				}
 
 
-				for (int j = 0; j < LIMIT_NUM_CMD_OPTION &&
-				                cmd_with_options[j] != NULL; j++)
+				// limit num of cmd options to 8,
+				// 0 for cmd ,1~8 for options,9 for null
+				for (int j = 0;
+				     j < LIMIT_NUM_CMD_OPTION - 1
+				     && cmd_with_options[j] != NULL; j++)
 				{
 					all_cmd_sets[k][j] = cmd_with_options[j];
 				}
+
 			}
 
 
@@ -95,19 +102,44 @@ int main(int argc, char *argv[])
 				if ((child_pid = fork()) == 0)
 				{
 					//child section
-					execvp(all_cmd_sets[id][0], all_cmd_sets[id]);
-					perror("Unknown Command\n");
+					int execvp_return = execvp(all_cmd_sets[id][0], all_cmd_sets[id]);
+					if (execvp_return == ERR_CODE)
+					{
+						switch (errno)
+						{
+							case ECHILD :
+								perror("Unknown Command\n");
+								break;
+							case ENOENT :
+								perror("Unknown Command please try valid command\n");
+								break;
+							default :
+								printf("errno:%d\n", errno);
+								break;
+						}
+						_exit(errno);
+					}
+
+
 				}
 			}
 
 			int wait_cnt = 0;
-			printf("%d\n\n", k);
 			while ((wait_pid = wait(&status_child)) > 0
 			       && ++wait_cnt < k);
 
-			if (errno != 0)
+			printf("%d %d %d \n\n", k, wait_pid, status_child);
+			switch (status_child)
 			{
-				printf("errno is %d\n\n\n", errno);
+				case ECHILD :
+					printf("Unknown Command\n");
+					break;
+				case ENOENT :
+					printf("Unknown Command\n");
+					break;
+				default :
+					printf("errno:%d\n", errno);
+					break;
 			}
 		}
 
@@ -134,12 +166,15 @@ int main(int argc, char *argv[])
 					exit(0);
 				}
 
+				if (!strcmp(batch_line, "\n")) continue;
+
+
 				printf("Your current command is %s", batch_line);
 				printf("Working...\n");
 
+//				 replace \n into null char
 				char *newline_pointer = strchr(batch_line, '\n');
 				if (newline_pointer != NULL) *newline_pointer = '\0';
-//				 replace \n into null char
 
 				int num_of_cmd_in_oneline = 0;
 
@@ -163,7 +198,9 @@ int main(int argc, char *argv[])
 				for (int p = 0; p < num_of_cmd_in_oneline; p++)
 				{
 					temp_for_separated_cmd = strtok(cmd_sets[p], CMD_OPTION_TOKEN);
-					for (int temp_target = 0; temp_for_separated_cmd != NULL; temp_target++)
+					for (int temp_target = 0;
+					     temp_target < LIMIT_NUM_CMD_OPTION - 1
+					     && temp_for_separated_cmd != NULL; temp_target++)
 					{
 						cmd_with_options[p][temp_target] = temp_for_separated_cmd;
 						temp_for_separated_cmd = strtok(NULL, CMD_OPTION_TOKEN);
@@ -190,9 +227,18 @@ int main(int argc, char *argv[])
 						                           cmd_with_options[fork_count]);
 						if (execvp_return == ERR_CODE)
 						{
-							printf("error occured during execvp\n");
-							printf("Unknown Command\n");
-
+							switch (errno)
+							{
+								case ECHILD :
+									perror("Unknown Command\n");
+									break;
+								case ENOENT :
+									perror("Unknown Command please try valid command\n");
+									break;
+								default :
+									printf("errno:%d\n", errno);
+									break;
+							}
 							_exit(errno);
 						}
 					}
@@ -202,9 +248,17 @@ int main(int argc, char *argv[])
 
 				while ((wait_pid = wait(&status_child)) > 0
 				       && ++wait_cnt < num_of_cmd_in_oneline)
-					if (errno != 0)
+					switch (errno)
 					{
-						printf("errno is %d\n\n\n", errno);
+						case ECHILD :
+							printf("Unknown Command\n");
+							break;
+						case ENOENT :
+							printf("Unknown Command\n");
+							break;
+						default :
+							printf("errno:%d\n", errno);
+							break;
 					}
 			}
 
