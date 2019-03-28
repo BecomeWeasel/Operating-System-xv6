@@ -103,7 +103,8 @@ int main(int argc, char *argv[])
 			int status_child = 0;
 			for (int id = 0; id < k; id++)
 			{
-				if ((child_pid = fork()) == 0)
+				child_pid = fork();
+				if (child_pid == 0)
 				{
 					//child section
 					int execvp_return = execvp(all_cmd_sets[id][0], all_cmd_sets[id]);
@@ -125,6 +126,11 @@ int main(int argc, char *argv[])
 					}
 
 
+				}
+				else if (child_pid < 0)
+				{
+					fprintf(stderr, "Fork failed");
+					exit(-1);
 				}
 			}
 
@@ -148,7 +154,7 @@ int main(int argc, char *argv[])
 
 
 	}
-	else
+	else if (argc == 2)
 	{
 		// batch mode
 		FILE *batch_file = fopen(argv[1], "r");
@@ -220,7 +226,8 @@ int main(int argc, char *argv[])
 						printf("quit command encountered\n");
 						_exit(0);
 					}
-					if ((child_pid = fork()) == 0)
+					child_pid = fork();
+					if (child_pid == 0)
 					{
 						// child section
 
@@ -242,6 +249,12 @@ int main(int argc, char *argv[])
 							}
 							_exit(errno);
 						}
+
+					}
+					else if (child_pid < 0)
+					{
+						fprintf(stderr, "Fork failed");
+						exit(-1);
 					}
 				}
 
@@ -266,6 +279,11 @@ int main(int argc, char *argv[])
 		}
 
 
+	}
+	else if (argc >= 3)
+	{
+		printf("only single batch file accepted\n");
+		return 0;
 	}
 }
 
