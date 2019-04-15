@@ -1,0 +1,7 @@
+ls -al;pwd;git status;
+thisisnotvalid
+/bin/ls -al
+ifconfig
+quit
+notworking
+

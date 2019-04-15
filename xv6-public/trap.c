@@ -22,7 +22,7 @@ tvinit(void)
   for(i = 0; i < 256; i++)
     SETGATE(idt[i], 0, SEG_KCODE<<3, vectors[i], 0);
   SETGATE(idt[T_SYSCALL], 1, SEG_KCODE<<3, vectors[T_SYSCALL], DPL_USER);
-
+  SETGATE(idt[128],1,SEG_KCODE<<3,vectors[128],DPL_USER);
   initlock(&tickslock, "time");
 }
 
@@ -45,6 +45,8 @@ trap(struct trapframe *tf)
       exit();
     return;
   }
+
+
 
   switch(tf->trapno){
   case T_IRQ0 + IRQ_TIMER:
@@ -77,7 +79,10 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
-
+  case 128://user made trap
+    cprintf("user interrupt %d called!\n",tf->trapno);
+    lapiceoi(); // interrupt end end of interrupt
+    return;
   //PAGEBREAK: 13
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){

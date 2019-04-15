@@ -186,5 +186,11 @@ void            switchkvm(void);
 int             copyout(pde_t*, uint, void*, uint);
 void            clearpteu(pde_t *pgdir, char *uva);
 
+// prac_syscall.c
+int             myfunction(char *);
+// prac_ppid.c
+int             getppid();
+// prac_yield.c
+int           sys_yield();  
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
