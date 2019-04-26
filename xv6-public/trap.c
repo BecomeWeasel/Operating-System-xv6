@@ -120,8 +120,9 @@ trap(struct trapframe *tf)
 #ifdef FCFS
   if(myproc() && myproc()->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER&&
-     (ticks-myproc()->ctime)>100)
-    yield();
+     (ticks-myproc()->ctime)>100){
+    exit();
+    }
 #endif
 #endif
   // Check if the process has been killed since we yielded
