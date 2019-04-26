@@ -326,7 +326,6 @@ wait(void)
 void
 scheduler(void)
 {
-  struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
 
@@ -338,6 +337,7 @@ scheduler(void)
     acquire(&ptable.lock);
 
 #ifdef FCFS
+    struct proc *p;
 	  struct proc *first_proc;
 		for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
       if(p->state==RUNNABLE) //CPU를 받을 상태가 되었을때
@@ -365,6 +365,7 @@ scheduler(void)
 #else
 
 #ifdef NORMAL
+    struct proc *p;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
 
       if(p->state != RUNNABLE) // RUNNABLE==ready 상태인것,자원할당 가능한것 찾는것임
