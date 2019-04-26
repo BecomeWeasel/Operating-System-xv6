@@ -340,6 +340,8 @@ scheduler(void)
     struct proc *p;
 	  struct proc *first_proc=NULL;
 		for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+			if(p->state!=RUNNABLE)
+				continue;
       if(p->state==RUNNABLE) //CPU를 받을 상태가 되었을때
 				if(first_proc!=NULL){
 					if(p->ctime<first_proc->ctime)
