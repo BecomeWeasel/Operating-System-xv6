@@ -50,6 +50,7 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
 	uint ctime;                  // 생성된 시간
+	uint stime;                  // 스케쥴러에 의해서 선택되어 CPU 할당받기 시작한 시간
 #ifdef MLFQ
 	int priority;                // process 우선순위
 #endif

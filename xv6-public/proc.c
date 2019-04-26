@@ -352,6 +352,7 @@ scheduler(void)
 			else{}
 		}
 	  if(first_proc!=NULL){
+	    first_proc->stime=ticks;
 		  c->proc=first_proc; // 작업 변경
 		  switchuvm(first_proc);
 		  first_proc->state=RUNNING;
