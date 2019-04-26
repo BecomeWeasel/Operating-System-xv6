@@ -58,6 +58,10 @@ trap(struct trapframe *tf)
     }
     lapiceoi();
     break;
+  case T_IRQ0 + IRQ_FCFS_TIMER: // FCFS인데 100tick 지났을때
+
+    lapiceoi();
+      break;
   case T_IRQ0 + IRQ_IDE:
     ideintr();
     lapiceoi();
@@ -105,12 +109,21 @@ trap(struct trapframe *tf)
   if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
     exit();
 
+#ifdef DEFAULT
   // Force process to give up CPU on clock tick.
   // If interrupts were on while locks held, would need to check nlock.
+  // 일반 RR일때
   if(myproc() && myproc()->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER)
     yield();
-
+#else
+#ifdef FCFS
+  if(myproc() && myproc()->state == RUNNING &&
+     tf->trapno == T_IRQ0+IRQ_TIMER
+     (ticks-myproc()->ctime)>100)
+    yield();
+#endif
+#endif
   // Check if the process has been killed since we yielded
   if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
     exit();
