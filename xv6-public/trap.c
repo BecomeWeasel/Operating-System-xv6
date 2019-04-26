@@ -121,7 +121,7 @@ trap(struct trapframe *tf)
   if(myproc() && myproc()->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER&&
      (ticks-myproc()->stime)>100){
-    exit();
+    cprintf("killed %d process",myproc()->pid);exit();
     }
 #endif
 #endif
