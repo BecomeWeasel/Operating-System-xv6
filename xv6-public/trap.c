@@ -119,7 +119,7 @@ trap(struct trapframe *tf)
 #else
 #ifdef FCFS
   if(myproc() && myproc()->state == RUNNING &&
-     tf->trapno == T_IRQ0+IRQ_TIMER
+     tf->trapno == T_IRQ0+IRQ_TIMER&&
      (ticks-myproc()->ctime)>100)
     yield();
 #endif
