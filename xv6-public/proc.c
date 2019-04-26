@@ -12,6 +12,8 @@ struct {
   struct proc proc[NPROC];
 } ptable;
 
+#define NULL 0
+
 static struct proc *initproc;
 
 int nextpid = 1;
@@ -38,10 +40,10 @@ struct cpu*
 mycpu(void)
 {
   int apicid, i;
-  
+
   if(readeflags()&FL_IF)
     panic("mycpu called with interrupts enabled\n");
-  
+
   apicid = lapicid();
   // APIC IDs are not guaranteed to be contiguous. Maybe we should have
   // a reverse map, or reserve a register to store &cpus[i].
@@ -87,6 +89,7 @@ allocproc(void)
 
 found:
   p->state = EMBRYO;
+  p->ctime=ticks;
   p->pid = nextpid++;
 
   release(&ptable.lock);
@@ -124,12 +127,13 @@ userinit(void)
   extern char _binary_initcode_start[], _binary_initcode_size[];
 
   p = allocproc();
-  
+
   initproc = p;
   if((p->pgdir = setupkvm()) == 0)
     panic("userinit: out of memory?");
   inituvm(p->pgdir, _binary_initcode_start, (int)_binary_initcode_size);
   p->sz = PGSIZE;
+  p->ctime=ticks;
   memset(p->tf, 0, sizeof(*p->tf));
   p->tf->cs = (SEG_UCODE << 3) | DPL_USER;
   p->tf->ds = (SEG_UDATA << 3) | DPL_USER;
@@ -275,7 +279,7 @@ wait(void)
   struct proc *p;
   int havekids, pid;
   struct proc *curproc = myproc();
-  
+
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -325,23 +329,52 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
-  for(;;){
+
+  for(int i=0;i<10;i++){
     // Enable interrupts on this processor.
     sti();
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+
+#ifdef FCFS
+	  struct proc *first_proc;
+		for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+      if(p->state==RUNNABLE) //CPU를 받을 상태가 되었을때
+				if(first_proc!=NULL){
+					if(p->ctime<first_proc->ctime)
+						first_proc=p;
+				}
+			else{
+					first_proc=p;
+				}
+		}
+	  if(first_proc!=NULL){
+		  c->proc=first_proc; // 작업 변경
+		  switchuvm(first_proc);
+		  first_proc->state=RUNNING;
+
+		  swtch(&(c->scheduler),first_proc->context);
+		  switchkvm();
+
+		  c->proc=0;
+	  }
+
+#else
+
+#ifdef NORMAL
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+
+      if(p->state != RUNNABLE) // RUNNABLE==ready 상태인것,자원할당 가능한것 찾는것임
         continue;
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      c->proc = p;
+      c->proc = p; // 현재 CPU 가져옴 그후 교체함
       switchuvm(p);
       p->state = RUNNING;
+
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
@@ -350,6 +383,8 @@ scheduler(void)
       // It should have changed its p->state before coming back.
       c->proc = 0;
     }
+#endif
+#endif
     release(&ptable.lock);
 
   }
@@ -418,7 +453,7 @@ void
 sleep(void *chan, struct spinlock *lk)
 {
   struct proc *p = myproc();
-  
+
   if(p == 0)
     panic("sleep");
 
