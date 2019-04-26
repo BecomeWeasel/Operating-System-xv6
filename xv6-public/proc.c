@@ -330,7 +330,7 @@ scheduler(void)
   struct cpu *c = mycpu();
   c->proc = 0;
 
-  for(int i=0;i<10;i++){
+  for(;;){
     // Enable interrupts on this processor.
     sti();
 
@@ -344,6 +344,8 @@ scheduler(void)
 				if(first_proc!=NULL){
 					if(p->ctime<first_proc->ctime)
 						first_proc=p;
+				}
+				else{
 				}
 			else{
 					first_proc=p;
