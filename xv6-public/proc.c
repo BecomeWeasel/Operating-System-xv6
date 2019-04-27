@@ -407,11 +407,11 @@ scheduler(void)
 	    }
 	  }
 	  else{ // L0이 비어있으니 , L1에서 priority 낮은 거 탐색
-	  struct proc* highPriorityProcess;
+	  struct proc* highPriorityProcess=NULL;
 	  int initialChecker=-1;
 
 	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
-	    if(p=>state!=RUNNABLE || p->lev==0)
+	    if(p->state!=RUNNABLE || p->lev==0)
 	      continue;
 	    if(p->priority>initialChecker){
 	      highPriorityProcess=p;
