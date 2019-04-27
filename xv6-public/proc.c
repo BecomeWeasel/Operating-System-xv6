@@ -411,29 +411,29 @@ scheduler(void)
 	      }
 	    }
 	  }
-	  else{ // L0이 비어있으니 , L1에서 priority 낮은 거 탐색
-	  struct proc* highPriorityProcess=NULL;
-	  int initialChecker=-1;
-
-	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
-	    if(p->state!=RUNNABLE || p->lev==0)
-	      continue;
-	    if(p->priority>initialChecker){
-	      highPriorityProcess=p;
-	      initialChecker=p->priority;
-	    }
-	  }
-	  highPriorityProcess->stime=ticks;
-	  highPriorityProcess->rtime=0;
-	  c->proc=highPriorityProcess;
-	  switchuvm(highPriorityProcess);
-	  highPriorityProcess->state=RUNNING;
-	  swtch(&(c->scheduler),highPriorityProcess->context);
-	  switchkvm();
-
-	  c->proc=0;
-
-	}
+//	  else{ // L0이 비어있으니 , L1에서 priority 낮은 거 탐색
+//	  struct proc* highPriorityProcess=NULL;
+//	  int initialChecker=-1;
+//
+//	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+//	    if(p->state!=RUNNABLE || p->lev==0)
+//	      continue;
+//	    if(p->priority>initialChecker){
+//	      highPriorityProcess=p;
+//	      initialChecker=p->priority;
+//	    }
+//	  }
+//	  highPriorityProcess->stime=ticks;
+//	  highPriorityProcess->rtime=0;
+//	  c->proc=highPriorityProcess;
+//	  switchuvm(highPriorityProcess);
+//	  highPriorityProcess->state=RUNNING;
+//	  swtch(&(c->scheduler),highPriorityProcess->context);
+//	  switchkvm();
+//
+//	  c->proc=0;
+//
+//	}
 #endif
 
 
