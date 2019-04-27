@@ -92,7 +92,10 @@ found:
   p->state = EMBRYO;
   p->ctime=ticks;
   p->pid = nextpid++;
-
+#ifdef MLFQ_SCHED
+  p->lev=0;
+  p->priority=0;
+#endif
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -100,10 +103,7 @@ found:
     p->state = UNUSED;
     return 0;
   }
-#ifdef MLFQ_SCHED
-  p->lev=0;
-  p->priority=0;
-#endif
+
   sp = p->kstack + KSTACKSIZE;
 
   // Leave room for trap frame.
