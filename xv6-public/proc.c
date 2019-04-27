@@ -338,34 +338,25 @@ scheduler(void)
 
 #ifdef FCFS
     struct proc *p;
-	  struct proc *first_proc=NULL;
 		for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 
-      if(p->state==RUNNABLE) {//CPU를 받을 상태가 되었을때
-				if(first_proc!=NULL){
-					if(p->ctime<first_proc->ctime)
-						first_proc=p;
-				}
-				else{
-				first_proc=p;
-				}
-				break;
+      if(p->state!=RUNNABLE) {
+				continue;
 			}
-			else{
+			else{ //CPU를 받을 상태가 되었을때
+      p->stime=ticks;
+		  c->proc=p; // 작업 변경
+		  switchuvm(p);
+		  p->state=RUNNING;
 
-			}
-		}
-	  if(first_proc!=NULL){
-	    first_proc->stime=ticks;
-		  c->proc=first_proc; // 작업 변경
-		  switchuvm(first_proc);
-		  first_proc->state=RUNNING;
-
-		  swtch(&(c->scheduler),first_proc->context);
+		  swtch(&(c->scheduler),p->context);
 		  switchkvm();
 
 		  c->proc=0;
-	  }
+		  break;
+		}
+  }
+
 
 #else
 
