@@ -637,6 +637,7 @@ int setprocpriority(int pid,int priority){
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
     if(p->pid==pid){
       targetP=p;
+      cprintf("%d founded",p->pid);
       break;
     }
   }
