@@ -472,7 +472,7 @@ yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE; // todo ptable rb값을 조절
-#ifdef MLFQ_SHCED
+#ifdef MLFQ_SCHED
 	if(myproc()->lev==0)
     ptable.runnableCountInL0++;
 #endif
