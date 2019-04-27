@@ -6,7 +6,7 @@
 
 int sys_getlev(void){
 #ifdef MLFQ_SCHED
-	return mycpu()->proc->lev;
+	return getlev();
 #endif
 	return 0;
 }
