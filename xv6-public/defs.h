@@ -120,7 +120,9 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+#ifdef MLFQ_SCHED
 struct proc*    getprocbyid(int pid);
+#endif
 
 // swtch.S
 void            swtch(struct context**, struct context*);
