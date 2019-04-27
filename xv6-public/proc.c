@@ -390,6 +390,7 @@ scheduler(void)
 	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 	    if(p->lev==0&&p->state==RUNNABLE){
 	      L0count=L0count+1;
+	      break;
 	    }
 	  }
 	  if(L0count>0){ // L0에서 탐색 후 RR수행
@@ -407,7 +408,7 @@ scheduler(void)
 		      switchkvm();
 
 		      c->proc=0;
-		      break;
+
 	      }
 	    }
 	  }
@@ -646,6 +647,7 @@ int setprocpriority(int pid,int priority){
   return 0;
   }
   targetP->priority=priority;
+//  cprinf("paramter is %d and targetP : %d",priority,targetP->priority);
   release(&ptable.lock);
   return 1;
 #endif
