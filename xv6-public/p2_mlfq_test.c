@@ -45,6 +45,7 @@ int main(int argc, char **argv) {
     int cnt[2] = {0};
     for (int i = 0; i < NUM_LOOP1; i++) {
       cnt[getlev()]++;
+      printf(1,"getlev success",i);
       setpriority(pid, me * 2);
     }
     printf(1, "process %d: L0=%d, L1=%d\n", pid, cnt[0], cnt[1]);
