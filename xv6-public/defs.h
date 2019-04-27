@@ -120,6 +120,7 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+struct proc*    getprocbyid(int pid);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
@@ -191,6 +192,9 @@ int             myfunction(char *);
 // prac_ppid.c
 int             getppid();
 // prac_yield.c
-int           sys_yield();  
+int           sys_yield();
+
+int           sys_getlev();
+
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

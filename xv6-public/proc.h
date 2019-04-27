@@ -51,8 +51,10 @@ struct proc {
   char name[16];               // Process name (debugging)
 	uint ctime;                  // 생성된 시간
 	uint stime;                  // 스케쥴러에 의해서 선택되어 CPU 할당받기 시작한 시간
-#ifdef MLFQ
+#ifdef MLFQ_SCHED
+	int lev;
 	int priority;                // process 우선순위
+	int rtime;
 #endif
 };
 

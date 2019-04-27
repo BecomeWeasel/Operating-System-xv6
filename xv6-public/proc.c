@@ -10,6 +10,7 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
+  int runnableCountInL0;
 } ptable;
 
 #define NULL 0
@@ -99,6 +100,10 @@ found:
     p->state = UNUSED;
     return 0;
   }
+#ifdef FCFS_SCHED
+  p->lev=0;
+  p->priorty=0;
+#endif
   sp = p->kstack + KSTACKSIZE;
 
   // Leave room for trap frame.
@@ -336,7 +341,7 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
 
-#ifdef FCFS
+#ifdef FCFS_SCHED
     struct proc *p;
 		for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 
@@ -382,8 +387,45 @@ scheduler(void)
       // It should have changed its p->state before coming back.
       c->proc = 0;
     }
+#ifdef MLFQ_SCHED
+	  struct proc* p;
+	  if(ptable.runnableCountInL0>0){ // L0에서 탐색 후 RR수행
+	    for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+	      if(p->state!=RUNNABLE)
+	        continue;
+	      if(p->lev==0 && p->state==RUNNABLE){
+	        p->stime=ticks;
+	        p->rtime=0;
+		      c->proc=p; // 작업 변경
+		      switchuvm(p);
+		      p->state=RUNNING;
+
+		      swtch(&(c->scheduler),p->context);
+		      switchkvm();
+
+		      c->proc=0;
+		      break;
+	      }
+	    }
+	  }
+	  else{ // L0이 비어있으니 , L1에서 priority 낮은 거 탐색
+	  struct proc* highPriorityProcess;
+	  int initialChecker=-1;
+
+	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+	    if(p=>state!=RUNNABLE || p->lev==0)
+	      continue;
+	    if(p->priority>initialChecker){
+	      highPriorityProcess=p;
+	      initialChecker=p->priority;
+	    }
+	  }
+
+	}
 #endif
 #endif
+#endif
+
     release(&ptable.lock);
 
   }
@@ -420,7 +462,11 @@ void
 yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
-  myproc()->state = RUNNABLE;
+  myproc()->state = RUNNABLE; // todo ptable rb값을 조절
+#ifdef MLFQ_SHCED
+	if(myproc()->lev==0)
+    ptable.runnableCountInL0++;
+#endif
   sched();
   release(&ptable.lock);
 }
@@ -493,9 +539,15 @@ wakeup1(void *chan)
 {
   struct proc *p;
 
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->state == SLEEPING && p->chan == chan)
       p->state = RUNNABLE;
+#ifdef MLFQ_SCHED
+    if(p->lev==0){
+      ptable.runnableCountInL0++;
+    }
+#endif
+  }
 }
 
 // Wake up all processes sleeping on chan.
@@ -565,4 +617,20 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+// pid에 매칭되는 process return
+
+struct proc* getprocbypid(int pid){
+  acquire(&ptable.lock);
+  struct proc* p;
+  struct proc* targetP;
+  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+    if(p->pid==pid){
+      targetP=p;
+      break;
+    }
+  }
+  release(&ptable.lock);
+  return targetP;
 }
