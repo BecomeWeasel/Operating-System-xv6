@@ -637,11 +637,15 @@ int setprocpriority(int pid,int priority){
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
     if(p->pid==pid){
       targetP=p;
-      cprintf("%d founded",p->pid);
+      cprintf("%d founded\n",p->pid);
       break;
     }
   }
 #ifdef MLFQ_SCHED
+  if(targetP==NULL){
+  release(&ptable.lock);
+  return 0;
+  }
   targetP->priority=priority;
   release(&ptable.lock);
   return 1;
