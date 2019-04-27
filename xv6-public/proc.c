@@ -100,9 +100,9 @@ found:
     p->state = UNUSED;
     return 0;
   }
-#ifdef FCFS_SCHED
+#ifdef MLFQ_SCHED
   p->lev=0;
-  p->priorty=0;
+  p->priority=0;
 #endif
   sp = p->kstack + KSTACKSIZE;
 
