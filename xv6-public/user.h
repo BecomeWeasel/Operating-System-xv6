@@ -27,7 +27,7 @@ int myfunction(char*);
 int getppid(void);
 int yield(void);
 int getlev(void);
-void setpriority(int pid,int int priority);
+void setpriority(int pid,int priority);
 
 // ulib.c
 int stat(const char*, struct stat*);

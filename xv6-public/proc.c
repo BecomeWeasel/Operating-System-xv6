@@ -624,7 +624,7 @@ procdump(void)
 struct proc* getprocbypid(int pid){
   acquire(&ptable.lock);
   struct proc* p;
-  struct proc* targetP;
+  struct proc* targetP=NULL;
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
     if(p->pid==pid){
       targetP=p;
