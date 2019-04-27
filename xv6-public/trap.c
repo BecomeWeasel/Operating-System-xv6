@@ -63,10 +63,6 @@ trap(struct trapframe *tf)
     }
     lapiceoi();
     break;
-  case T_IRQ0 + IRQ_FCFS_TIMER: // FCFS인데 100tick 지났을때
-
-    lapiceoi();
-      break;
   case T_IRQ0 + IRQ_IDE:
     ideintr();
     lapiceoi();
@@ -124,7 +120,7 @@ trap(struct trapframe *tf)
 #elif FCFS_SCHED
   if(myproc() && myproc()->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER&&
-     (ticks-myproc()->stime)>100){
+     (ticks-myproc()->stime)==100){
     cprintf("killed %d process",myproc()->pid);exit();
     }
 #elif MLFQ_SCHED
@@ -145,7 +141,10 @@ trap(struct trapframe *tf)
 	    myproc()->priority--;
 	  yield();
 	  }
-
+  if(tf->trapno==T_IRQ0+IRQ_TIMER&&
+    ticks%100==0) {// 100ticks 마다 boosting
+      priboosting();
+  }
 #endif
 
   // Check if the process has been killed since we yielded

@@ -659,4 +659,17 @@ int setprocpriority(int pid,int priority){
 int getlev(void){
   return myproc()->lev;
 }
+
+void priboosting(void){
+  acquire(&ptable.lock);
+  struct proc* p;
+
+  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+    if(p->lev==1){
+      p->lev=0;
+      p->priority=0;
+    }
+  }
+  release(&ptable.lock);
+}
 #endif

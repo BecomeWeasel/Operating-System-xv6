@@ -122,6 +122,9 @@ void            wakeup(void*);
 void            yield(void);
 int             setprocpriority(int,int);
 int             getlev(void);
+#ifdef MLFQ_SCHED
+void            priboosting(void);
+#endif
 
 // swtch.S
 void            swtch(struct context**, struct context*);
