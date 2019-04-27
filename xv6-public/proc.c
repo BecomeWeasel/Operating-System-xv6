@@ -363,9 +363,7 @@ scheduler(void)
   }
 
 
-#else
-
-#ifdef DEFAULT
+#elif DEFAULT
     struct proc *p;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
 
@@ -387,7 +385,7 @@ scheduler(void)
       // It should have changed its p->state before coming back.
       c->proc = 0;
     }
-#ifdef MLFQ_SCHED
+#elif MLFQ_SCHED
 	  struct proc* p;
 	  if(ptable.runnableCountInL0>0){ // L0에서 탐색 후 RR수행
 	    for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
@@ -423,8 +421,7 @@ scheduler(void)
 
 	}
 #endif
-#endif
-#endif
+
 
     release(&ptable.lock);
 
@@ -621,7 +618,7 @@ procdump(void)
 
 // pid에 매칭되는 process return
 
-struct proc* getprocbypid(int pid){
+int setprocpriority(int pid,int priority){
   acquire(&ptable.lock);
   struct proc* p;
   struct proc* targetP=NULL;
@@ -631,6 +628,12 @@ struct proc* getprocbypid(int pid){
       break;
     }
   }
+#ifdef MLFQ_SCHED
+  targetP->priority=priority;
+  return 1;
+#endif
   release(&ptable.lock);
-  return targetP;
+  if(targetP==NULL)
+    return 0;
+  return 0;
 }

@@ -7,8 +7,8 @@
 
 void sys_setpriority(int pid,int priority){
 //#ifdef MLFQ_SCHED
-	struct proc* p;
-	p=getprocbyid(pid);
-	p->priority=priority;
+	int result=setprocpriority(pid,priority);
+	if(result)
+		cprintf("%d 's priority set to %d",pid,priority);
 //#endif
 }
