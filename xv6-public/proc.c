@@ -387,10 +387,11 @@ scheduler(void)
 #elif MLFQ_SCHED
 	  struct proc* p;
 	  int L0count=0;
-	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
+	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 	    if(p->lev==0&&p->state==RUNNABLE){
 	      L0count=L0count+1;
 	    }
+	  }
 	  if(L0count>0){ // L0에서 탐색 후 RR수행
 	    for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 	      if(p->state!=RUNNABLE)
