@@ -397,6 +397,7 @@ scheduler(void)
 		      c->proc=p; // 작업 변경
 		      switchuvm(p);
 		      p->state=RUNNING;
+          ptable.runnableCountInL0--;
 
 		      swtch(&(c->scheduler),p->context);
 		      switchkvm();

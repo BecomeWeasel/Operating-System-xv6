@@ -121,20 +121,21 @@ trap(struct trapframe *tf)
   if(myproc() && myproc()->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER)
     yield();
-#else
-#ifdef FCFS_SCHED
+#elif FCFS_SCHED
   if(myproc() && myproc()->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER&&
      (ticks-myproc()->stime)>100){
     cprintf("killed %d process",myproc()->pid);exit();
     }
-#ifdef MLFQ_SCHED
+#elif MLFQ_SCHED
 	if(myproc()&&myproc()->state==RUNNING &&
 	  tf->trapno== T_IRQ0+IRQ_TIMER&&
 	  myproc()->lev==0 &&
 	  myproc()->rtime>4){ // L0 RR timer
+
 	  myproc()->lev=1;
 	  yield();
+
 	  }
 	if(myproc()&&myproc()->state==RUNNING &&
 	  tf->trapno== T_IRQ0+IRQ_TIMER&&
@@ -144,8 +145,7 @@ trap(struct trapframe *tf)
 	  }
 
 #endif
-#endif
-#endif
+
   // Check if the process has been killed since we yielded
   if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
     exit();
