@@ -418,6 +418,15 @@ scheduler(void)
 	      initialChecker=p->priority;
 	    }
 	  }
+	  highPriorityProcess->stime=ticks;
+	  highPriorityProcess->rtime=0;
+	  c->proc=highPriorityProcess;
+	  switchuvm(highPriorityProcess);
+	  highPriorityProcess->state=RUNNING;
+	  swtch(&(c->scheduler),highPriorityProcess->context);
+	  switchkvm();
+
+	  c->proc=0;
 
 	}
 #endif
