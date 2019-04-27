@@ -224,7 +224,9 @@ fork(void)
   acquire(&ptable.lock);
 
   np->state = RUNNABLE;
-
+#ifdef MLFQ_SCHED
+	ptable.runnableCountInL0++;
+#endif
   release(&ptable.lock);
 
   return pid;
