@@ -639,6 +639,7 @@ int setprocpriority(int pid,int priority){
   }
 #ifdef MLFQ_SCHED
   targetP->priority=priority;
+  release(&ptable.lock);
   return 1;
 #endif
   release(&ptable.lock);
