@@ -341,7 +341,7 @@ scheduler(void)
 	  struct proc *first_proc=NULL;
 		for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 
-      if(p->state==RUNNABLE) //CPU를 받을 상태가 되었을때
+      if(p->state==RUNNABLE) {//CPU를 받을 상태가 되었을때
 				if(first_proc!=NULL){
 					if(p->ctime<first_proc->ctime)
 						first_proc=p;
@@ -349,7 +349,10 @@ scheduler(void)
 				else{
 				first_proc=p;
 				}
-			else{}
+			}
+			else{
+
+			}
 		}
 	  if(first_proc!=NULL){
 	    first_proc->stime=ticks;
