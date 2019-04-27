@@ -349,6 +349,7 @@ scheduler(void)
 				else{
 				first_proc=p;
 				}
+				break;
 			}
 			else{
 
