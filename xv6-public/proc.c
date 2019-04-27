@@ -651,9 +651,6 @@ int setprocpriority(int pid,int priority){
 
 #ifdef MLFQ_SCHED
 int getlev(void){
-  pushcli();
-  int lev=mycpu()->proc->lev;
-  popcli();
-  return lev;
+  return myproc()->lev;
 }
 #endif
