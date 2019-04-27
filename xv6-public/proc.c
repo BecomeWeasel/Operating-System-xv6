@@ -10,7 +10,6 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
-  int runnableCountInL0;
 } ptable;
 
 #define NULL 0
@@ -224,9 +223,7 @@ fork(void)
   acquire(&ptable.lock);
 
   np->state = RUNNABLE;
-#ifdef MLFQ_SCHED
-	ptable.runnableCountInL0++;
-#endif
+
   release(&ptable.lock);
 
   return pid;
@@ -389,7 +386,12 @@ scheduler(void)
     }
 #elif MLFQ_SCHED
 	  struct proc* p;
-	  if(ptable.runnableCountInL0>0){ // L0에서 탐색 후 RR수행
+	  int L0count=0;
+	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
+	    if(p->lev==0&&p->state==RUNNABLE){
+	      L0count=L0count+1;
+	    }
+	  if(L0count>0){ // L0에서 탐색 후 RR수행
 	    for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 	      if(p->state!=RUNNABLE)
 	        continue;
@@ -399,7 +401,6 @@ scheduler(void)
 		      c->proc=p; // 작업 변경
 		      switchuvm(p);
 		      p->state=RUNNING;
-          ptable.runnableCountInL0--;
 
 		      swtch(&(c->scheduler),p->context);
 		      switchkvm();
@@ -472,10 +473,7 @@ yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE; // todo ptable rb값을 조절
-#ifdef MLFQ_SCHED
-	if(myproc()->lev==0)
-    ptable.runnableCountInL0++;
-#endif
+
   sched();
   release(&ptable.lock);
 }
@@ -551,11 +549,6 @@ wakeup1(void *chan)
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->state == SLEEPING && p->chan == chan)
       p->state = RUNNABLE;
-#ifdef MLFQ_SCHED
-    if(p->lev==0){
-      ptable.runnableCountInL0++;
-    }
-#endif
   }
 }
 
