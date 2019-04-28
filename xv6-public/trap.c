@@ -143,7 +143,7 @@ trap(struct trapframe *tf)
 	  yield();
 	  }
   if(
-      ticks%100==1) {// 100ticks 마다 boosting
+      ticks%100==0) {// 100ticks 마다 boosting
       priboosting();
   }
 #else
