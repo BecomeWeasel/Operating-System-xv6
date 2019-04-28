@@ -1,0 +1,3 @@
+/Users/RYAN/Google Drive/HYU/3학년 1학기 (2019)/운영체제/과제/2019_ELE3021_2016026599/xv6-public/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/RYAN/Google Drive/HYU/3학년 1학기 (2019)/운영체제/과제/2019_ELE3021_2016026599/xv6-public/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/RYAN/Google Drive/HYU/3학년 1학기 (2019)/운영체제/과제/2019_ELE3021_2016026599/xv6-public/cmake-build-debug/CMakeFiles/xv6_public.dir

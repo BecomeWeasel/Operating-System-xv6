@@ -688,6 +688,8 @@ void priboosting(void){
 }
 
 void monopolize(int password){
+  acquire(&ptable.lock);
+
   if(myproc()->monopolize==1){// 현재 독점중일때
     if(password==2016026599){ // 독점중인데 비밀번호 맞을때
       myproc()->monopolize=0; // 독점해제
@@ -714,6 +716,8 @@ void monopolize(int password){
         myproc()->state=RUNNABLE;
     }
   }
+    release(&ptable.lock);
+
 }
 
 #endif

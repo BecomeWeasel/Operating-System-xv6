@@ -1,0 +1,15 @@
+/Applications/CLion.app/Contents/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" "/Users/RYAN/Google Drive/HYU/3학년 1학기 (2019)/운영체제/과제/2019_ELE3021_2016026599/xv6-public"
+-- Configuring done
+CMake Error at CMakeLists.txt:85 (add_executable):
+  Cannot find source file:
+
+    prac_getlev.cpp
+
+  Tried extensions .c .C .c++ .cc .cpp .cxx .m .M .mm .h .hh .h++ .hm .hpp
+  .hxx .in .txx
+
+
+CMake Error: CMake can not determine linker language for target: xv6_public
+CMake Error: Cannot determine link language for target "xv6_public".
+-- Generating done
+-- Build files have been written to: /Users/RYAN/Google Drive/HYU/3학년 1학기 (2019)/운영체제/과제/2019_ELE3021_2016026599/xv6-public/cmake-build-debug
