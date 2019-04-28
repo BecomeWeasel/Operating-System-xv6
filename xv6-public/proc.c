@@ -424,33 +424,32 @@ scheduler(void)
 	      if(priorityP!=NULL){
 	        if(priorityP->priority<p->priority)
 	          priorityP=p;
-	        else if(priorityP>p)
-	          priorityP=p;
+	        else if(priorityP->priority==p->priority){
+	          if(priorityP>p)
+	            priorityP=p;
+	        }
 	      }
 	      else
 	        priorityP=p;
 	    }
 	  }
 
-	  if(priorityP==NULL){
-	    release(&ptable.lock);
-	    continue;
-	  }
+	  if(priorityP!=NULL){
+	  p=priorityP;
+	  c->proc=p;
+	  switchuvm(p);
+	  p->state=RUNNING;
 
+	  p->stime=ticks;
+	  p->rtime=0;
 
-	  c->proc=priorityP;
-	  switchuvm(priorityP);
-	  priorityP->state=RUNNING;
-
-	  priorityP->stime=ticks;
-	  priorityP->rtime=0;
-
-	  swtch(&(c->scheduler),priorityP->context);
+	  swtch(&(c->scheduler),p->context);
 	  switchkvm();
 
 	  c->proc=0;
-
+    }
 	}
+#else
 #endif
 
 
