@@ -53,13 +53,13 @@ trap(struct trapframe *tf)
     if(cpuid() == 0){
       acquire(&tickslock);
       ticks++;
-      wakeup(&ticks);
-      release(&tickslock);
 #ifdef MLFQ_SCHED
       if(myproc()&&myproc()->state==RUNNING){
         myproc()->rtime++;
       }
 #endif
+      wakeup(&ticks);
+      release(&tickslock);
     }
     lapiceoi();
     break;

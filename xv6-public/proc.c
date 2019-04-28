@@ -385,6 +385,7 @@ scheduler(void)
       c->proc = 0;
     }
 #elif MLFQ_SCHED
+    struct proc* priorityP=NULL;
 	  struct proc* p;
 	  int L0count=0;
 	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
@@ -397,7 +398,7 @@ scheduler(void)
 	    for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 	      if(p->state!=RUNNABLE)
 	        continue;
-	      if(p->lev==0 && p->state==RUNNABLE){
+	      if(p->lev==0){
 
 		      c->proc=p; // 작업 변경
 		      switchuvm(p);
@@ -414,7 +415,6 @@ scheduler(void)
 	    }
 	  }
 	  else{ // L0이 비어있으니 , L1에서 priority 낮은 거 탐색
-	  struct proc* priorityP=NULL;
 
 
 	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
