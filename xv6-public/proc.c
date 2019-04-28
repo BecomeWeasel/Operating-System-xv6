@@ -425,7 +425,7 @@ scheduler(void)
 	        if(priorityP->priority<p->priority)
 	          priorityP=p;
 	        else if(priorityP->priority==p->priority){
-	          if(priorityP>p)
+	          if(priorityP->ctime>p->ctime)
 	            priorityP=p;
 	        }
 	      }
@@ -435,18 +435,18 @@ scheduler(void)
 	  }
 
 	  if(priorityP!=NULL){
-	  p=priorityP;
-	  c->proc=p;
-	  switchuvm(p);
-	  p->state=RUNNING;
+	    p=priorityP;
+	    c->proc=p;
+	    switchuvm(p);
+	    p->state=RUNNING;
 
-	  p->stime=ticks;
-	  p->rtime=0;
+	    p->stime=ticks;
+	    p->rtime=0;
 
-	  swtch(&(c->scheduler),p->context);
-	  switchkvm();
+	    swtch(&(c->scheduler),p->context);
+	    switchkvm();
 
-	  c->proc=0;
+	    c->proc=0;
     }
 	}
 #else
