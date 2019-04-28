@@ -94,7 +94,7 @@ found:
 #ifdef MLFQ_SCHED
   p->lev=0;
   p->priority=0;
-  p->monopolize==0;
+  p->monopolize=0;
 #endif
   release(&ptable.lock);
 
