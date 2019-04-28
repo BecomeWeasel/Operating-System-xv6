@@ -688,12 +688,12 @@ void priboosting(void){
 void monopolize(int password){
   if(myproc()->monopolize==1){// 현재 독점중일때
     if(password==2016026599){ // 독점중인데 비밀번호 맞을때
-      myproc()->monopolize==0; // 독점해제
+      myproc()->monopolize=0; // 독점해제
       myproc()->lev=0; // L0로 이동
       myproc()->priority=0; // PRI 조절
     }
     else{ //독점중인데 비밀번호 틀릴때
-      monopolizeflag=0; // 독점해제
+      myproc()->monopolize=0; // 독점해제
       if(myproc()->state==SLEEPING) // kill함
         myproc()->state=RUNNABLE;
       myproc()->killed=1;
@@ -701,7 +701,7 @@ void monopolize(int password){
   }
   else if(myproc()->monopolize==0){// 독점중이 아닐때
     if(password==2016026599){ // 독점중이 아닐때 비밀번호 맞을때
-      myproc()->monopolize==1; // 독점시작
+      myproc()->monopolize=1; // 독점시작
     }
     else{ // 독점중이 아닐때 비밀번호 틀릴때
       // kill the P
