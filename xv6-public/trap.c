@@ -121,7 +121,8 @@ trap(struct trapframe *tf)
   if(myproc() && myproc()->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER&&
      (ticks-myproc()->stime)>=100){
-    cprintf("killed %d process\n",myproc()->pid);exit();
+    cprintf("killed %d process\n",myproc()->pid);
+    myproc()->killed=1;
     }
 #elif MLFQ_SCHED
 	if(myproc()&&myproc()->state==RUNNING &&

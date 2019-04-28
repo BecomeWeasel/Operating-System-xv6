@@ -696,9 +696,9 @@ void monopolize(int password){
     }
     else{ //독점중인데 비밀번호 틀릴때
       myproc()->monopolize=0; // 독점해제
+      myproc()->killed=1;
       if(myproc()->state==SLEEPING) // kill함
         myproc()->state=RUNNABLE;
-      myproc()->killed=1;
     }
   }
   else if(myproc()->monopolize==0){// 독점중이 아닐때
