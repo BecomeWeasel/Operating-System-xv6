@@ -55,6 +55,7 @@ struct proc {
 	int lev;
 	int priority;                // process 우선순위
 	int rtime;
+	int monopolizeflag;       // monopolize flag
 #endif
 };
 
