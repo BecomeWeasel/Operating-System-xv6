@@ -17,7 +17,6 @@ struct {
 static struct proc *initproc;
 
 int nextpid = 1;
-int monopolizeflag=0;
 extern void forkret(void);
 extern void trapret(void);
 
@@ -95,6 +94,7 @@ found:
 #ifdef MLFQ_SCHED
   p->lev=0;
   p->priority=0;
+  p->monopolize==0;
 #endif
   release(&ptable.lock);
 
@@ -489,8 +489,6 @@ sched(void)
 void
 yield(void)
 {
-  if(monopolizeflag)
-    return;
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE; // todo ptable rb값을 조절
 
@@ -688,9 +686,9 @@ void priboosting(void){
 }
 
 void monopolize(int password){
-  if(monopolizeflag==1){// 현재 독점중일때
+  if(myproc()->monopolize==1){// 현재 독점중일때
     if(password==2016026599){ // 독점중인데 비밀번호 맞을때
-      monopolizeflag=0; // 독점해제
+      myproc()->monopolize==0; // 독점해제
       myproc()->lev=0; // L0로 이동
       myproc()->priority=0; // PRI 조절
     }
@@ -701,9 +699,9 @@ void monopolize(int password){
       myproc()->killed=1;
     }
   }
-  else if(monopolizeflag==0){// 독점중이 아닐때
+  else if(myproc()->monopolize==0){// 독점중이 아닐때
     if(password==2016026599){ // 독점중이 아닐때 비밀번호 맞을때
-      monopolizeflag=1; // 독점시작
+      myproc()->monopolize==1; // 독점시작
     }
     else{ // 독점중이 아닐때 비밀번호 틀릴때
       // kill the P

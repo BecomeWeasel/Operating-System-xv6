@@ -126,7 +126,8 @@ trap(struct trapframe *tf)
 #elif MLFQ_SCHED
 	if(myproc()&&myproc()->state==RUNNING &&
 	  myproc()->lev==0 &&
-	  myproc()->rtime>=4){ // L0 RR timer
+	  myproc()->rtime>=4 &&
+	  myproc()->monopolize!=1){ // L0 RR timer
 
 	  myproc()->lev=1;
 	  yield();
@@ -134,7 +135,8 @@ trap(struct trapframe *tf)
 	  }
 	if(myproc()&&myproc()->state==RUNNING &&
 	  myproc()->lev==1 &&
-	  myproc()->rtime>=8) { // L1 RR timer + reverse againg
+	  myproc()->rtime>=8&&
+	  myproc()->monopolize!=1) { // L1 RR timer + reverse againg
 	  if(myproc()->priority>0)
 	    myproc()->priority--;
 	  yield();
