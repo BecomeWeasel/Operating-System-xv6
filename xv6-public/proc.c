@@ -398,11 +398,12 @@ scheduler(void)
 	      if(p->state!=RUNNABLE)
 	        continue;
 	      if(p->lev==0 && p->state==RUNNABLE){
-	        p->stime=ticks;
-	        p->rtime=0;
+
 		      c->proc=p; // 작업 변경
 		      switchuvm(p);
 		      p->state=RUNNING;
+		      p->stime=ticks;
+	        p->rtime=0;
 
 		      swtch(&(c->scheduler),p->context);
 		      switchkvm();
@@ -413,29 +414,38 @@ scheduler(void)
 	    }
 	  }
 	  else{ // L0이 비어있으니 , L1에서 priority 낮은 거 탐색
-	  struct proc* highPriorityProcess=NULL;
-	  int initialChecker=-1;
+	  struct proc* priorityP=NULL;
+
 
 	  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
-	    if(p->state!=RUNNABLE || p->lev==0)
+	    if(p->state!=RUNNABLE)
 	      continue;
-	    if(p->priority>initialChecker){
-	      highPriorityProcess=p;
-	      initialChecker=p->priority;
+	    if(p->lev==1){
+	      if(priorityP!=NULL){
+	        if(priorityP->priority<p->priority)
+	          priorityP=p;
+	        else if(priorityP>p)
+	          priorityP=p;
+	      }
+	      else
+	        priorityP=p;
 	    }
 	  }
 
-	  if(highPriorityProcess==NULL){
+	  if(priorityP==NULL){
 	    release(&ptable.lock);
 	    continue;
 	  }
 
-	  highPriorityProcess->stime=ticks;
-	  highPriorityProcess->rtime=0;
-	  c->proc=highPriorityProcess;
-	  switchuvm(highPriorityProcess);
-	  highPriorityProcess->state=RUNNING;
-	  swtch(&(c->scheduler),highPriorityProcess->context);
+
+	  c->proc=priorityP;
+	  switchuvm(priorityP);
+	  priorityP->state=RUNNING;
+
+	  priorityP->stime=ticks;
+	  priorityP->rtime=0;
+
+	  swtch(&(c->scheduler),priorityP->context);
 	  switchkvm();
 
 	  c->proc=0;
