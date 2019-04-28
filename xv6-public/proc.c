@@ -695,6 +695,7 @@ void monopolize(int password){
       myproc()->priority=0; // PRI 조절
     }
     else{ //독점중인데 비밀번호 틀릴때
+      cprintf("wrong password at calling monopolize\n");
       myproc()->monopolize=0; // 독점해제
       myproc()->killed=1;
       if(myproc()->state==SLEEPING) // kill함
@@ -707,6 +708,7 @@ void monopolize(int password){
     }
     else{ // 독점중이 아닐때 비밀번호 틀릴때
       // kill the P
+      cprintf("wrong password at calling monopolize\n");
       myproc()->killed=1;
       if(myproc()->state==SLEEPING) // 비정상접근,kill P
         myproc()->state=RUNNABLE;
