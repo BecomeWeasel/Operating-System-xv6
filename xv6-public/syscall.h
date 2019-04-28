@@ -25,3 +25,4 @@
 #define SYS_yield 24
 #define SYS_getlev 25
 #define SYS_setpriority 26
+#define SYS_monopolize 27

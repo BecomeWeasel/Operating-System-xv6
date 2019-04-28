@@ -33,6 +33,7 @@ OBJS = \
 	prac_yield.o\
 	prac_getlev.o\
 	prac_setpriority.o\
+	prac_monopolize.o\
 
 # Cross-compiling (e.g., on Mac OS X)
 # TOOLPREFIX = i386-jos-elf

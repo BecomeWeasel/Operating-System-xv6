@@ -124,6 +124,7 @@ int             setprocpriority(int,int);
 int             getlev(void);
 #ifdef MLFQ_SCHED
 void            priboosting(void);
+void            monopolize(int);
 #endif
 
 // swtch.S
@@ -197,8 +198,6 @@ int             myfunction(char *);
 int             getppid();
 // prac_yield.c
 int           sys_yield();
-
-int           sys_getlev();
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

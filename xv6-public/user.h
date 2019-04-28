@@ -28,6 +28,7 @@ int getppid(void);
 int yield(void);
 int getlev(void);
 void setpriority(int pid,int priority);
+void monopolize(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
