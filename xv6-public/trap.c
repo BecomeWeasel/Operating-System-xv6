@@ -141,8 +141,9 @@ trap(struct trapframe *tf)
 	    myproc()->priority--;
 	  yield();
 	  }
-  if(tf->trapno==T_IRQ0+IRQ_TIMER&&
+  if(
       ticks%100==0) {// 100ticks 마다 boosting
+      cprintf("boosting action %d \n ",ticks);
       priboosting();
   }
 #else

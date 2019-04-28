@@ -669,6 +669,8 @@ int setprocpriority(int pid,int priority){
 
 #ifdef MLFQ_SCHED
 int getlev(void){
+  if(myproc()->monopolize==1){
+    return 0;}
   return myproc()->lev;
 }
 
@@ -705,9 +707,9 @@ void monopolize(int password){
     }
     else{ // 독점중이 아닐때 비밀번호 틀릴때
       // kill the P
+      myproc()->killed=1;
       if(myproc()->state==SLEEPING) // 비정상접근,kill P
         myproc()->state=RUNNABLE;
-      myproc()->killed=1;
     }
   }
 }
