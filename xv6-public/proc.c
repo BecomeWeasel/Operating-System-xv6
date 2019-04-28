@@ -426,7 +426,7 @@ scheduler(void)
 	        if(priorityP->priority<p->priority)
 	          priorityP=p;
 	        else if(priorityP->priority==p->priority){
-	          if(priorityP->ctime>p->ctime)
+	          if(priorityP>p)
 	            priorityP=p;
 	        }
 	      }

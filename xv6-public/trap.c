@@ -142,8 +142,7 @@ trap(struct trapframe *tf)
 	  yield();
 	  }
   if(
-      ticks%100==0) {// 100ticks 마다 boosting
-      cprintf("boosting action %d \n ",ticks);
+      ticks%100==1) {// 100ticks 마다 boosting
       priboosting();
   }
 #else
