@@ -22,7 +22,7 @@ exit:
 
 # char init[] = "/init\0";
 init:
-  .string "/init\0"
+  .string "/myinit\0"
 
 # char *argv[] = { init, 0 };
 .p2align 2

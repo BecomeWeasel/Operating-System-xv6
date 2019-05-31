@@ -26,3 +26,6 @@
 #define SYS_getlev 25
 #define SYS_setpriority 26
 #define SYS_monopolize 27
+#define SYS_thread_create 28
+#define SYS_thread_exit 29
+#define SYS_thread_join 30

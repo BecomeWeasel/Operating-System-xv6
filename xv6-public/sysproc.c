@@ -94,3 +94,31 @@ sys_uptime(void)
 //{
 //  return myproc()->parent->pid;
 //}
+//
+//
+//
+int
+sys_thread_create(void){
+  thread_t* thread;
+  void* start_routine;
+  void* arg;
+
+  int firstSz,secondSz,thirdSz;
+
+  argptr(0,(char**)&thread,sizeof(thread));
+  argptr(1,(char**)&start_routine,sizeof(start_routine));
+  argptr(2,(char**)&arg,sizeof(arg));
+
+
+  return thread_create(thread,start_routine,arg);
+}
+
+int
+sys_thread_exit(void){
+  return 0;
+}
+
+int
+sys_thread_join(void){
+  return 0;
+}

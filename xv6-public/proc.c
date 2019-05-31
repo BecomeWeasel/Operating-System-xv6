@@ -91,6 +91,12 @@ found:
   p->state = EMBRYO;
   p->ctime=ticks;
   p->pid = nextpid++;
+
+  p->isThread=0;
+  p->numOfThread=0;
+  p->nextThreadId=0;
+  p->tid=-1;
+
 #ifdef MLFQ_SCHED
   p->lev=0;
   p->priority=0;
@@ -721,3 +727,94 @@ void monopolize(int password){
 }
 
 #endif
+
+static struct proc*
+allocthread(void){
+  struct proc *p;
+  struct proc* curproc=myproc();
+  char *sp;
+
+  acquire(&ptable.lock);
+
+  for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
+    if(p->state == UNUSED)
+      goto found;
+  
+  release(&ptable.lock);
+  return 0;
+
+found:
+  p->state=EMBRYO;
+  p->ctime=ticks;
+  p->pid=curproc->pid;
+
+  p->isThread=1;
+  p->numOfThread=0;
+
+  curproc->numOfThread++;
+  p->tid=curproc->nextThreadId++;
+  
+  release(&ptable.lock);
+
+  if((p->kstack=kalloc())==0){
+    p->state=UNUSED;
+    return 0;
+  }
+  
+  sp=p->kstack+KSTACKSIZE;
+
+  sp-= sizeof *p->tf;
+  p->tf=(struct trapframe*)sp;
+  
+  sp-=4;
+  *(uint*)sp=(uint)trapret;
+  
+  sp-=sizeof *p->context;
+  p->context=(struct context*)sp;
+  memset(p->context,0,sizeof *p->context);
+  p->context->eip=(uint)forkret;
+
+  return p;
+}
+
+int thread_create(thread_t*thread, void*(*start_routine)(void*),void *arg){
+  int i;
+  struct proc* np;
+  struct proc* curproc=myproc();
+
+  // same as fork
+  if((np=allocthread())==0){
+    return -1;
+  }
+
+  np->pgdir=curproc->pgdir;
+
+  *thread=np->tid;
+
+  np->sz=curproc->sz;
+  np->parent=curproc->parent;
+  *np->tf=*curproc->tf;
+
+  np->tf->eax=0;
+  np->tf->eip=(uint)start_routine;
+
+  for(i=0;i<NOFILE;i++)
+    if(curproc->ofile[i])
+      np->ofile[i]=filedup(curproc->ofile[i]);
+  np->cwd=idup(curproc->cwd);
+
+  safestrcpy(np->name,curproc->name,sizeof(curproc->name));
+
+  acquire(&ptable.lock);
+
+  np->state=RUNNABLE;
+
+  release(&ptable.lock);
+
+  return 0;
+}
+
+void thread_exit(void *retval){
+  
+}
+

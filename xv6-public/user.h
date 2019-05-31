@@ -1,3 +1,5 @@
+typedef int thread_t;
+
 struct stat;
 struct rtcdate;
 
@@ -29,6 +31,9 @@ int yield(void);
 int getlev(void);
 void setpriority(int pid,int priority);
 void monopolize(int);
+int thread_create(thread_t* thread,void *(*start_routine)(void *),void* arg);
+void thread_exit(void *retval);
+int thread_join(thread_t thread,void **retval);
 
 // ulib.c
 int stat(const char*, struct stat*);
