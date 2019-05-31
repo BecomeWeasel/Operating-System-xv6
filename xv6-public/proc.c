@@ -79,7 +79,7 @@ allocproc(void)
   char *sp;
 
   //cprintf("81\n");
-  acquire(&ptable.lock);
+  acquire2(&ptable.lock,81);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == UNUSED)
@@ -163,7 +163,7 @@ userinit(void)
   // writes to be visible, and the lock is also needed
   // because the assignment might not be atomic.
   //cprintf("165\n");
-  acquire(&ptable.lock);
+  acquire2(&ptable.lock,166);
 
   p->state = RUNNABLE;
 
@@ -230,7 +230,7 @@ fork(void)
   pid = np->pid;
 
   //cprintf("232\n");
-  acquire(&ptable.lock);
+  acquire2(&ptable.lock,233);
 
   np->state = RUNNABLE;
 
@@ -296,7 +296,7 @@ wait(void)
   struct proc *curproc = myproc();
 
   //cprintf("298\n");
-  acquire(&ptable.lock);
+  acquire2(&ptable.lock,299);
   for(;;){
     // Scan through table looking for exited children.
     havekids = 0;
@@ -502,7 +502,7 @@ void
 yield(void)
 {
   //cprintf("504\n");
-  acquire(&ptable.lock);  //DOC: yieldlock
+  acquire2(&ptable.lock,505);  //DOC: yieldlock
   myproc()->state = RUNNABLE; // todo ptable rb값을 조절
 
   sched();
@@ -551,7 +551,7 @@ sleep(void *chan, struct spinlock *lk)
   // so it's okay to release lk.
   if(lk != &ptable.lock){  //DOC: sleeplock0
     //cprintf("553\n");
-    acquire(&ptable.lock);  //DOC: sleeplock1
+    acquire2(&ptable.lock,553);  //DOC: sleeplock1
     release(lk);
   }
   // Go to sleep.
@@ -566,7 +566,7 @@ sleep(void *chan, struct spinlock *lk)
   // Reacquire original lock.
   if(lk != &ptable.lock){  //DOC: sleeplock2
     release(&ptable.lock);
-    acquire(lk);
+    acquire2(lk,569);
   }
 }
 
@@ -589,7 +589,7 @@ void
 wakeup(void *chan)
 {
  // cprintf("591\n");
-  acquire(&ptable.lock);
+  acquire2(&ptable.lock,592);
   wakeup1(chan);
   release(&ptable.lock);
 }
@@ -603,7 +603,7 @@ kill(int pid)
   struct proc *p;
 
   //cprintf("605\n");
-  acquire(&ptable.lock);
+  acquire2(&ptable.lock,606);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == pid){
       p->killed = 1;
@@ -745,7 +745,7 @@ allocthread(void){
   char *sp;
 
   cprintf("747\n");
-  acquire(&ptable.lock);
+  acquire2(&ptable.lock,748);
 
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
     if(p->state == UNUSED)
@@ -831,7 +831,7 @@ int thread_create(thread_t*thread, void*(*start_routine)(void*),void *arg){
  np->sz=tmpsz;
 
  //cprintf("833\n");
- acquire(&ptable.lock);
+ acquire2(&ptable.lock,834);
 
  struct proc* p;
  for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
@@ -860,7 +860,7 @@ int thread_create(thread_t*thread, void*(*start_routine)(void*),void *arg){
   safestrcpy(np->name,curproc->name,sizeof(curproc->name));
 
   //cprintf("862\n");
-  acquire(&ptable.lock);
+  acquire2(&ptable.lock,863);
 
   np->state=RUNNABLE;
 
