@@ -20,7 +20,7 @@ main(void)
   dup(0);  // stderr
 
   for(;;){
-    printf(1,"Hello xv6!");
+    printf(1,"Hello xv6!\n");
     printf(1,"5\n");
     sleep(100);
     printf(1,"4\n");

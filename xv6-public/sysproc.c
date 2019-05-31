@@ -103,7 +103,6 @@ sys_thread_create(void){
   void* start_routine;
   void* arg;
 
-  int firstSz,secondSz,thirdSz;
 
   argptr(0,(char**)&thread,sizeof(thread));
   argptr(1,(char**)&start_routine,sizeof(start_routine));

@@ -78,6 +78,7 @@ allocproc(void)
   struct proc *p;
   char *sp;
 
+  //cprintf("81\n");
   acquire(&ptable.lock);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
@@ -161,6 +162,7 @@ userinit(void)
   // run this process. the acquire forces the above
   // writes to be visible, and the lock is also needed
   // because the assignment might not be atomic.
+  //cprintf("165\n");
   acquire(&ptable.lock);
 
   p->state = RUNNABLE;
@@ -227,6 +229,7 @@ fork(void)
 
   pid = np->pid;
 
+  //cprintf("232\n");
   acquire(&ptable.lock);
 
   np->state = RUNNABLE;
@@ -262,6 +265,7 @@ exit(void)
   end_op();
   curproc->cwd = 0;
 
+  //cprintf("268\n");
   acquire(&ptable.lock);
 
   // Parent might be sleeping in wait().
@@ -291,6 +295,7 @@ wait(void)
   int havekids, pid;
   struct proc *curproc = myproc();
 
+  //cprintf("298\n");
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -345,6 +350,7 @@ scheduler(void)
     sti();
 
     // Loop over process table looking for process to run.
+    //cprintf("353\n");
     acquire(&ptable.lock);
 
 #ifdef FCFS_SCHED
@@ -495,6 +501,7 @@ sched(void)
 void
 yield(void)
 {
+  //cprintf("504\n");
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE; // todo ptable rb값을 조절
 
@@ -543,6 +550,7 @@ sleep(void *chan, struct spinlock *lk)
   // (wakeup runs with ptable.lock locked),
   // so it's okay to release lk.
   if(lk != &ptable.lock){  //DOC: sleeplock0
+    //cprintf("553\n");
     acquire(&ptable.lock);  //DOC: sleeplock1
     release(lk);
   }
@@ -580,6 +588,7 @@ wakeup1(void *chan)
 void
 wakeup(void *chan)
 {
+ // cprintf("591\n");
   acquire(&ptable.lock);
   wakeup1(chan);
   release(&ptable.lock);
@@ -593,6 +602,7 @@ kill(int pid)
 {
   struct proc *p;
 
+  //cprintf("605\n");
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == pid){
@@ -734,6 +744,7 @@ allocthread(void){
   struct proc* curproc=myproc();
   char *sp;
 
+  cprintf("747\n");
   acquire(&ptable.lock);
 
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
@@ -755,7 +766,7 @@ found:
   p->tid=curproc->nextThreadId++;
   
   release(&ptable.lock);
-
+ 
   if((p->kstack=kalloc())==0){
     p->state=UNUSED;
     return 0;
@@ -779,24 +790,67 @@ found:
 
 int thread_create(thread_t*thread, void*(*start_routine)(void*),void *arg){
   int i;
+  uint tmpsz,sp,ustack[2];
   struct proc* np;
   struct proc* curproc=myproc();
-
+  
+  cprintf("at create %d\n",thread);
   // same as fork
   if((np=allocthread())==0){
     return -1;
   }
 
   np->pgdir=curproc->pgdir;
+  
+  tmpsz=curproc->sz;
 
+
+  
+ if((tmpsz=allocuvm(np->pgdir,tmpsz,tmpsz+2*PGSIZE))==0)
+   goto bad;
+ clearpteu(np->pgdir,(char*)(tmpsz-2*PGSIZE));
+ sp=tmpsz;
+
+
+ //argc=1;
+
+ //ustack[]=0;
+
+ ustack[0]=0xffffffff; // fake return PC
+ ustack[1]=(uint)arg;// argv pointer
+
+ sp-=(2)*4;
+
+ cprintf("before \n");
+
+ if(copyout(np->pgdir,sp,ustack,(2)*4)<0)
+   goto bad;
+
+ cprintf("after \n");
+
+ np->sz=tmpsz;
+
+ //cprintf("833\n");
+ acquire(&ptable.lock);
+
+ struct proc* p;
+ for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
+   if(p->pid==np->pid){
+     p->sz=np->sz;
+     p->pgdir=np->pgdir;
+   }
+ release(&ptable.lock);
+
+ *np->tf=*curproc->tf;
+ np->tf->eip=(uint)start_routine; // starting point
+ cprintf("eip : %d\n",np->tf->eip);
+ np->tf->esp=sp;
+ np->tf->eax=0;
   *thread=np->tid;
+  cprintf("%d\n",*thread);
 
-  np->sz=curproc->sz;
   np->parent=curproc->parent;
-  *np->tf=*curproc->tf;
 
-  np->tf->eax=0;
-  np->tf->eip=(uint)start_routine;
 
   for(i=0;i<NOFILE;i++)
     if(curproc->ofile[i])
@@ -805,13 +859,21 @@ int thread_create(thread_t*thread, void*(*start_routine)(void*),void *arg){
 
   safestrcpy(np->name,curproc->name,sizeof(curproc->name));
 
+  //cprintf("862\n");
   acquire(&ptable.lock);
 
   np->state=RUNNABLE;
 
   release(&ptable.lock);
 
+  switchuvm(np);
+
+  cprintf("out\n");
   return 0;
+
+
+bad:
+  return -1;
 }
 
 void thread_exit(void *retval){
