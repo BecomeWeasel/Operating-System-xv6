@@ -628,6 +628,26 @@ kill(int pid)
 
   //cprintf("605\n");
   acquire2(&ptable.lock,606);
+
+  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+    if(p->creator->pid==pid){
+      p->killed=1;
+      if(p->state==SLEEPING)
+        p->state=RUNNABLE;
+    }
+  }
+  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+    if(p->pid==pid){
+      p->killed=1;
+      if(p->state==SLEEPING)
+        p->state=RUNNABLE;
+      release(&ptable.lock);
+      return 0;
+    }
+  }
+
+
+
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == pid){
       p->killed = 1;
