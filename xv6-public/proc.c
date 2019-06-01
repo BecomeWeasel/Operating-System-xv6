@@ -188,6 +188,20 @@ growproc(int n)
       return -1;
   }
   curproc->sz = sz;
+
+
+  /* sz propagation */
+ acquire(&ptable.lock);
+
+ struct proc* p;
+ for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+   if(p->creator==curproc->creator || p==curproc->creator){
+     p->sz=curproc->sz;
+   }
+ }
+  release(&ptable.lock);
+
+  /* end of sz propagation */
   switchuvm(curproc);
   return 0;
 }
@@ -217,6 +231,8 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+
+  np->creator=curproc;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -260,6 +276,14 @@ exit(void)
       curproc->ofile[fd] = 0;
     }
   }
+
+  acquire(&ptable.lock);
+  /* if curproc has any thread */
+  if(curproc->creator->isThread==1&&
+      curproc->creator->numOfThread!=0){
+    
+  }
+  release(&ptable.lock);
 
   begin_op();
   iput(curproc->cwd);
@@ -798,11 +822,12 @@ int thread_create(thread_t* thread,void*(*start_routine)(void*),void * arg){
 
   //pgdir=curproc->pgdir;
   
-
+ // cprintf("before allocation\n");
   if((np=allocproc())==0){
     return -1;
   }
 
+  //cprintf("allocation success\n");
   np->pgdir=curproc->pgdir;
 
   //cprintf("p.sz : %d\n",curproc->sz);
@@ -864,17 +889,16 @@ int thread_create(thread_t* thread,void*(*start_routine)(void*),void * arg){
   
 
 
-
   struct proc* p;
 
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
     if(p->parent->pid==np->parent->pid){
-      p->pgdir=np->pgdir;
       p->sz=np->sz;
     }
   }
+
+
  
-  //cprintf("after p.sz : %d\n",curproc->sz);
 
   
   for(int i=0;i<NOFILE;i++)
@@ -886,78 +910,19 @@ int thread_create(thread_t* thread,void*(*start_routine)(void*),void * arg){
   safestrcpy(np->name,curproc->name,sizeof(curproc->name));
 
   
+  // switchuvm-like
   pushcli();
-
   lcr3(V2P(np->pgdir));
   popcli();
+
+
   np->state=RUNNABLE;
 
   release(&ptable.lock);
   //cprintf("before retrun\n");
   return 0;
 
-  /*
-  
-
-  sp=curproc->sz;
-
-  np->isThread=1;
-  np->parent=curproc;
-  
-  //np->pid=curproc->pid;
-  np->tid=curproc->nextThreadId++;
-  curproc->numOfThread++;
-
-  np->pgdir=curproc->pgdir;
-  np->sz=curproc->sz;
-  *np->tf=*curproc->tf;
-
-  *thread=np->tid;
-
-  release(&pgdirlock);
-
-  ustack[0]=0xffffffff; // fatke return PC
-  ustack[1]=(uint)arg;
-
-  sp-=8;
-  
-  if(copyout(np->pgdir,sp,ustack,8)<0)
-    return -1;
-
-  np->tf->eax=0;
-  np->tf->eip=(uint)start_routine;
-  np->tf->esp=sp;
-
-  np->tf->ebp=np->tf->esp;
-
-  acquire(&ptable.lock);
-
-  struct proc* p;
-  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
-    if(p->pid==np->pid){
-      p->sz=np->sz;
-      p->pgdir=np->pgdir;
-    }
-  }
-  release(&ptable.lock);
-*  
-  for(i=0;i<NOFILE;i++)
-    if(curproc->ofile[i])
-      np->ofile[i]=filedup(curproc->ofile[i]);
-  np->cwd=idup(curproc->cwd);
-*/
-/*
-  safestrcpy(np->name,curproc->name,sizeof(curproc->name));
-
-
-  switchuvm(np);
-
-  acquire(&ptable.lock);
-  np->state=RUNNABLE;
-  release(&ptable.lock);
-
-  return 0;
-*/
+ 
 
 }
 
@@ -980,13 +945,25 @@ void thread_exit(void *retval){
 
   acquire(&ptable.lock);
 
+/*
+  // if this thread is last remaining thread 
+  if(curproc->creator->numOfThread==1){
+    cprintf("current is %d is Thread : %d\n",curproc->pid,curproc->isThread);
+    cprintf("creator sz %d\n and ntid %d\n",curproc->creator->sz,curproc->creator->nextThreadId);
+   curproc->creator->sz=deallocuvm(curproc->creator->pgdir,
+       curproc->creator->sz,curproc->creator->sz-curproc->creator->nextThreadId*PGSIZE*2);
+   cprintf("creator after sz %d\n",curproc->creator->sz);
+   curproc->creator->nextThreadId=0;
+  }
+*/
   //wakeup1(curproc->parent);
+  curproc->creator->numOfThread--;
   wakeup1(curproc->creator);
 
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
     if(p->parent==curproc){
       p->parent=initproc;
-      if(p->state==ZOMBIE)
+     if(p->state==ZOMBIE)
         wakeup1(initproc);
     }
   }
@@ -1014,7 +991,8 @@ int thread_join(thread_t thread, void **retval){
         //pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
-        //freevm(p->pgdir);
+        //if(p->creator->numOfThread==1)
+        //  freevm(p->pgdir);
         p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;

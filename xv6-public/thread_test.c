@@ -69,6 +69,7 @@ void *thread_sbrk(void *arg)
 
   if (val == 0) {
     ptr = (int *)malloc(65536);
+    printf(1,"after malloc\n");
     sleep(100);
     free(ptr);
     ptr = 0;
