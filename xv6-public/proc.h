@@ -57,6 +57,9 @@ struct proc {
   int numOfThread;
   int nextThreadId;
   thread_t tid;
+  void * retval;
+  struct proc* creator;
+
 #ifdef MLFQ_SCHED
 	int lev;
 	int priority;                // process 우선순위

@@ -47,9 +47,10 @@ void
 acquire2(struct spinlock *lk,int ln)
 {
   pushcli(); // disable interrupts to avoid deadlock.
+  //cprintf("acquire2 %d\n", lk->locked);
   if(holding(lk)){
     cprintf("name : %s  ln: %d\n",lk->name,ln);
-    panic("acquire");
+    panic("acquire2");
   }
   // The xchg is atomic.
   while(xchg(&lk->locked, 1) != 0)

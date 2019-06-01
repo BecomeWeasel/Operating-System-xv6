@@ -35,6 +35,6 @@ SYSCALL(yield)
 SYSCALL(getlev)
 SYSCALL(setpriority)
 SYSCALL(monopolize)
-SYSCALL(thread_create);
-SYSCALL(thread_exit);
-SYSCALL(thread_join);
+SYSCALL(thread_create)
+SYSCALL(thread_exit)
+SYSCALL(thread_join)

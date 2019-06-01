@@ -97,27 +97,33 @@ sys_uptime(void)
 //
 //
 //
-int
-sys_thread_create(void){
+int sys_thread_create(void){
   thread_t* thread;
-  void* start_routine;
+  void * (*start_routine)(void*);
   void* arg;
-
 
   argptr(0,(char**)&thread,sizeof(thread));
   argptr(1,(char**)&start_routine,sizeof(start_routine));
   argptr(2,(char**)&arg,sizeof(arg));
 
-
   return thread_create(thread,start_routine,arg);
 }
 
-int
-sys_thread_exit(void){
+int sys_thread_exit(void){
+  void * retval;
+
+  argptr(0,(char**)&retval,sizeof(retval));
+  thread_exit(retval);
   return 0;
 }
 
-int
-sys_thread_join(void){
-  return 0;
+int sys_thread_join(void){
+  thread_t thread;
+  void ** retval;
+
+  argint(0,&thread);
+  argptr(1,(char**)&retval,sizeof(retval));
+
+  return thread_join(thread,retval);
+
 }
