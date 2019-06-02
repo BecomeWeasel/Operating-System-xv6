@@ -178,7 +178,7 @@ growproc(int n)
 {
   uint sz;
   struct proc *curproc = myproc();
-
+acquire(&ptable.lock);
   sz = curproc->sz;
   if(n > 0){
     if((sz = allocuvm(curproc->pgdir, sz, sz + n)) == 0)
@@ -191,7 +191,6 @@ growproc(int n)
 
 
   /* sz propagation */
- acquire(&ptable.lock);
 
  struct proc* p;
  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
