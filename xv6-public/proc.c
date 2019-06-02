@@ -642,7 +642,6 @@ kill(int pid)
 {
   struct proc *p;
 
-  //cprintf("605\n");
   acquire2(&ptable.lock,606);
 
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
@@ -652,18 +651,6 @@ kill(int pid)
         p->state=RUNNABLE;
     }
   }
-
-  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
-    if(p->pid==pid){
-      p->killed=1;
-      if(p->state==SLEEPING)
-        p->state=RUNNABLE;
-      release(&ptable.lock);
-      return 0;
-    }
-  }
-
-
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == pid){
@@ -1102,6 +1089,13 @@ void thread_exit_target(struct proc* target){
 
   release(&ptable.lock);
   target->state=ZOMBIE;
+/*  if(target->isThread!=1){
+      kfree(target->kstack);
+      target->kstack=0;
+      //freevm(target->pgdir);
+      target->sz=0;
+      target->state=UNUSED;
+  }*/
   return ;
 
 }
