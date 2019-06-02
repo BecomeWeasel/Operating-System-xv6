@@ -278,12 +278,28 @@ exit(void)
   }
 
   acquire(&ptable.lock);
-  /* if curproc has any thread */
-  if(curproc->creator->isThread==1&&
+  /* if curproc has any thread 
+  if(curproc->isThread==1&&
       curproc->creator->numOfThread!=0){
-    
-  }
+   struct proc* p;
+   for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+     if(p->creator->pid==curproc->creator->pid&&
+         p->isThread==1&&p->pid!=curproc->pid){
+     p->killed=1;
+     if(p->state==SLEEPING){
+       p->state=RUNNABLE;
+     }
+   }
+   }
+  }*/
   release(&ptable.lock);
+
+  if(curproc->isThread==1){
+    killAllFromThread(curproc);
+  thread_exit_target(curproc->creator);
+  }
+
+
 
   begin_op();
   iput(curproc->cwd);
@@ -636,6 +652,7 @@ kill(int pid)
         p->state=RUNNABLE;
     }
   }
+
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
     if(p->pid==pid){
       p->killed=1;
@@ -1035,5 +1052,57 @@ int thread_join(thread_t thread, void **retval){
 
   }
     return -1;
+}
+
+void killAllFromThread(struct proc * curproc){
+
+  acquire2(&ptable.lock,1050);
+  struct proc* p;
+  for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+    if(p->isThread!=1)
+      continue;
+    if(p->creator==curproc->creator
+        &&p->pid!=curproc->pid){
+      kfree(p->kstack);
+      p->kstack=0;
+      p->pid=0;
+      p->parent=0;
+      p->name[0]=0;
+      p->killed=0;
+      p->state=UNUSED;
+      p->sz=0;
+    }
+  }
+ release(&ptable.lock);
+// sched();
+
+}
+
+void thread_exit_target(struct proc* target){
+  
+  int fd;
+
+  for(fd=0;fd<NOFILE;fd++){
+    if(target->ofile[fd]){
+      fileclose(target->ofile[fd]);
+      target->ofile[fd]=0;
+    }
+  }
+
+  begin_op();
+  iput(target->cwd);
+  end_op();
+
+  acquire(&ptable.lock);
+
+  target->cwd=0;
+  
+  target->creator->numOfThread--;
+  wakeup1(target->creator);
+
+  release(&ptable.lock);
+  target->state=ZOMBIE;
+  return ;
+
 }
 

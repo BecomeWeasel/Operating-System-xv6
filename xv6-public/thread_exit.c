@@ -17,7 +17,7 @@ void *thread_main(void *arg)
     sleep(200);
   }
   
-  printf(1, "This code shouldn't be executed!!\n");
+  printf(1, "This code shouldn't be executed!!20\n");
   exit();
   return 0;
 }
@@ -32,6 +32,6 @@ int main(int argc, char *argv[])
     thread_create(&thread[i], thread_main, (void *)i);
   }
   sleep(200);
-  printf(1, "This code shouldn't be executed!!\n");
+  printf(1, "This code shouldn't be executed!!35\n");
   exit();
 }
