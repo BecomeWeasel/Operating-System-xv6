@@ -232,7 +232,7 @@ fork(void)
   np->parent = curproc;
   *np->tf = *curproc->tf;
 
-  np->creator=curproc;
+  np->creator=np;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -294,10 +294,10 @@ exit(void)
   }*/
   release(&ptable.lock);
 
-  if(curproc->isThread==1){
+ // if(curproc->isThread==1){
     killAllFromThread(curproc);
-  thread_exit_target(curproc->creator);
-  }
+    //thread_exit_target(curproc->creator);
+ // }
 
 
 
@@ -1046,17 +1046,19 @@ void killAllFromThread(struct proc * curproc){
   acquire2(&ptable.lock,1050);
   struct proc* p;
   for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
-    if(p->isThread!=1)
+    if(p->pid==curproc->pid)
       continue;
     if(p->creator==curproc->creator
-        &&p->pid!=curproc->pid){
-      kfree(p->kstack);
+        ||p==curproc->creator){
+      if(p->kstack!=0){
+      kfree(p->kstack);}
       p->kstack=0;
       p->pid=0;
       p->parent=0;
       p->name[0]=0;
       p->killed=0;
       p->state=UNUSED;
+      p->creator=0;
       p->sz=0;
     }
   }

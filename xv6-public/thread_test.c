@@ -2,7 +2,7 @@
 #include "stat.h"
 #include "user.h"
 
-#define NUM_THREAD 5
+#define NUM_THREAD 10
 
 int status;
 thread_t thread[NUM_THREAD];
@@ -133,10 +133,10 @@ int main(int argc, char *argv[])
     expected[i] = i;
 
   printf(1, "Test 1: Basic test\n");
-  create_all(2, thread_basic);
+  create_all(5, thread_basic);
   sleep(100);
   printf(1, "Parent waiting for children...\n");
-  join_all(2);
+  join_all(5);
   if (status != 1) {
     printf(1, "Join returned before thread exit, or the address space is not properly shared\n");
     failed();
