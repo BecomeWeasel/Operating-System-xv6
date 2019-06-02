@@ -19,6 +19,7 @@ exec(char *path, char **argv)
   pde_t *pgdir, *oldpgdir;
   struct proc *curproc = myproc();
 
+  killAllFromThread(curproc);
   begin_op();
 
   if((ip = namei(path)) == 0){

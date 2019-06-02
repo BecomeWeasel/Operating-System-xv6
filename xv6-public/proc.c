@@ -1051,7 +1051,8 @@ void killAllFromThread(struct proc * curproc){
     if(p->creator==curproc->creator
         ||p==curproc->creator){
       if(p->kstack!=0){
-      kfree(p->kstack);}
+        kfree(p->kstack);
+      }
       p->kstack=0;
       p->pid=0;
       p->parent=0;
