@@ -465,18 +465,18 @@ itrunc(struct inode *ip)
   if(ip->addrs[NDIRECT+1]){
     bp=bread(ip->dev,ip->addrs[NDIRECT+1]);
     a=(uint*)bp->data;
-    for(i=0;i<128;i++){
+    for(i=0;i<NINDIRECT;i++){
       if(a[i]){
         bp2=bread(ip->dev,a[i]);
         a2=(uint*)bp2->data;
-        for(j=0;j<128;j++){
+        for(j=0;j<NINDIRECT;j++){
           if(a2[j])
             bfree(ip->dev,a2[j]);
         }
         brelse(bp2);
-        //bfree(ip->dev,a[i]);
+        bfree(ip->dev,a[i]);
       }
-      bfree(ip->dev,a[i]);
+      //bfree(ip->dev,a[i]);
     }
     brelse(bp);
     bfree(ip->dev,ip->addrs[NDIRECT+1]);
