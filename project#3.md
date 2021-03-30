@@ -16,10 +16,7 @@
 
 ## thread 구현을 위한 proc 구조체 변경사항
 
-![image](/uploads/5d2ed70005c645abe01653c9da300640/image.png)
-
-```int isThread,int numOfThread,int nextThreadId,thread_t tid,void * retval, struct proc*p creator
-``` 등을 추가했습니다.
+`int isThread,int numOfThread,int nextThreadId,thread_t tid,void * retval, struct proc*p creator`등을 추가했습니다.
 그중에서  creator 멤버는 기존 ** proc 구조체**의 **parent**와 비슷한 역할을 수행합니다.
 
 이번 설계에서 process와 **thread_create**를 통해 생성된 thread는 *parent-child* 관계가 아니고 **pid**도 다르기 때문에 **creator**라는 포인터를 가짐으로써 *최소한의 연결 관계*를 유지해줍니다. *( 이 방식은 밑에 다시 설명드립니다.)*
